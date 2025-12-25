@@ -1,87 +1,74 @@
 # Iris Flower Classification
 
-Iris Flower Classification is a small machine learning project that predicts the species of an iris flower (Setosa, Versicolor, Virginica) using sepal and petal measurements. This repository demonstrates end-to-end steps: data loading, preprocessing, model training, evaluation, and simple prediction/inference.
+Iris Flower Classification is a small machine learning project that predicts the species of an iris flower (Setosa, Versicolor, Virginica) using sepal and petal measurements. This repository demonstrates end-to-end steps: data loading, preprocessing, model training, evaluation, and single-sample inference using scikit-learn.
 
-## Contents
-- Overview and objective
-- Dataset
-- Requirements
-- Quick start (train & predict)
-- Model & results
-- Project structure
-- License & contact
-
-## Dataset
-This project uses the classic Iris dataset (available from scikit-learn and the UCI Machine Learning Repository). Each sample contains four features:
-- sepal length (cm)
-- sepal width (cm)
-- petal length (cm)
-- petal width (cm)
-
-The target is one of three species: Setosa, Versicolor, Virginica.
+## What's included
+- Training, evaluation, and prediction scripts (src/train.py, src/evaluate.py, src/predict.py)
+- Data helpers (src/utils.py)
+- Requirements (requirements.txt)
+- Simple RandomForest baseline pipeline saved/loaded with joblib
 
 ## Requirements
 - Python 3.8+
 - scikit-learn
 - pandas
 - numpy
-- joblib (optional, for saving models)
+- joblib
 
-Install requirements:
+Install:
 ```
 python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
 ## Quick start
 
-Train a model (example):
+Train a model (uses scikit-learn's Iris dataset by default):
 ```
-python src/train.py --data data/iris.csv --model models/rf.pkl
-```
-
-Evaluate:
-```
-python src/evaluate.py --model models/rf.pkl --data data/iris.csv
+python src/train.py
 ```
 
-Predict single sample:
+Train using a CSV file (CSV must either have a `species` column or have the target as the last column):
 ```
-python src/predict.py --model models/rf.pkl \
+python src/train.py --data data/iris.csv --model models/rf_pipeline.joblib
+```
+
+Evaluate a saved model:
+```
+python src/evaluate.py --model models/rf_pipeline.joblib
+```
+
+Predict a single sample:
+```
+python src/predict.py --model models/rf_pipeline.joblib \
   --sepal-length 5.1 --sepal-width 3.5 --petal-length 1.4 --petal-width 0.2
-# Output: Predicted species: Setosa (with probability ...)
 ```
 
-(Adjust script names/arguments to match the repository implementation.)
+## Scripts overview
+- src/utils.py: data loading and preprocessing helper. load_data(path=None) will load sklearn's iris if path is omitted. Returns X_train, X_test, y_train, y_test, label_encoder.
+- src/train.py: trains a pipeline (StandardScaler + RandomForest), prints test accuracy and saves a joblib bundle containing the pipeline and label encoder.
+- src/evaluate.py: loads the saved bundle and prints accuracy, classification report, and confusion matrix on the test set.
+- src/predict.py: loads the saved bundle and predicts a single sample from command-line feature values.
 
-## Model(s)
-This repository includes a straightforward baseline pipeline. Typical models used:
-- Logistic Regression
-- Decision Tree
-- Random Forest
+## Model artifact
+The scripts save a joblib bundle (default: `models/rf_pipeline.joblib`) that contains:
+```
+{ 'pipeline': sklearn_pipeline, 'label_encoder': sklearn.preprocessing.LabelEncoder }
+```
+This makes decoding integer predictions back to species names straightforward.
 
-Example baseline result (may vary by split and preprocessing):
-- Accuracy: ~95% on a standard train/test split
-
-## Project structure (suggested)
-- data/                 # raw and processed datasets (e.g., iris.csv)
-- src/
-  - train.py            # training script
-  - evaluate.py         # evaluation script, metrics, confusion matrix
-  - predict.py          # single-sample prediction/inference
-  - utils.py            # data loading & preprocessing helpers
-- models/               # saved model artifacts (e.g., rf.pkl)
+## Project structure
+- data/                 # raw and processed datasets (e.g., data/iris.csv)
+- src/                  # training/eval/predict scripts and helpers
+- models/               # saved model artifacts (e.g., models/rf_pipeline.joblib)
 - requirements.txt
 - README.md
 
-## Notes & suggestions
-- Include a requirements.txt to make environment setup reproducible.
-- Add example outputs and evaluation metrics (accuracy, precision, recall, confusion matrix).
-- Optionally add a small notebook (notebooks/Exploration.ipynb) for EDA and visualization of decision boundaries.
-
-## License
-Specify repository license (e.g., MIT). Add LICENSE file.
+## Notes & next steps
+- Add an example `data/iris.csv` if you want to train on a CSV rather than the built-in dataset.
+- Consider adding unit tests and a CI workflow (GitHub Actions) to run linting and test training on push.
+- License: add a LICENSE file (e.g., MIT) if you want to set the repository license.
 
 ## Author
 Mohamed Idhries
